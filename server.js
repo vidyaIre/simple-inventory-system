@@ -1,4 +1,5 @@
 const express = require('express');
+const validateProduct = require('./middleware/validateProduct');
 
 const app = express();
 const PORT = 5000;
@@ -7,7 +8,7 @@ app.use(express.json());
 
 let products = [];
 
-const getProducts = () => products;
+//const getProducts = () => products;
 
 app.get('/products', (req, res) => {
     //res.status(200).send("hello simple inventory management system");
@@ -16,40 +17,19 @@ app.get('/products', (req, res) => {
 
 
 
-app.post('/addProduct', (req, res) => {
+app.post('/addProduct', validateProduct,(req, res) => {
     console.log("add product api call");
+    const {id, productName, price, size} = req.body;
+    console.log("Product to add:", { id, productName, price, size });
+    products.push({id, productName, price, size});
+    res.status(201).json({
+        success: true,
+        statusCode: 201,
+        message: "Product added successfully",
+        data: {id, productName, price, size}
+    });
 
-    if (req.body?.product) {
-        //console.log("product data", req.body.product);
-        products.push(req.body.product);
-        res.status(201).json({
-            success: true,
-            statusCode: 201,
-            message: "Product added successfully",
-            data: req.body.product
-        });
-
-    } else {
-        res.status(400).json({
-            success: false,
-            statusCode: 400,
-            message: "Product data is required"
-        });
-    }
-
-})
-
-
-// app.get('/products/:id',(req, res) =>{
-//     //console.log("get product by id api call");
-//     console.log(" current products", products);
-//     const {id} = req.params;
-//     console.log("product id", id);
-//     const product = products.find(p => p.id === id);
-//    console.log("product", product);
-  
-//    res.json(product);
-// })
+});
 
 app.get("/products/:id", (req, res) => {
     const productId = Number(req.params.id);
